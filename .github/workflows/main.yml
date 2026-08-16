@@ -1,0 +1,29 @@
+name: Runtime Concurrency Checker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 */6 * * *'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  worker-pipeline:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        job: [1, 2, 3, 4, 5]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t bot-runner .
+
+      - name: Run bot
+        timeout-minutes: 340
+        run: docker run --rm bot-runner
